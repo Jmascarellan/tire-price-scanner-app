@@ -780,7 +780,29 @@ export default function ScanScreen() {
                 <View style={styles.resultContainer}>
                   {(() => {
                     const grupos = agruparPorMarca(state.result);
-                    return Object.entries(grupos).map(([marca, modelos]) => {
+                    // Reordenar las marcas por el modelo elegido en cada render.
+                    const gruposOrdenados = Object.entries(grupos).sort(
+                      ([marcaA, modelosA], [marcaB, modelosB]) => {
+                        const modeloA = modelosA[modeloSeleccionado[marcaA] ?? 0];
+                        const modeloB = modelosB[modeloSeleccionado[marcaB] ?? 0];
+                        const precioA =
+                          parseFloat(
+                            (modeloA.json?.precio || '0')
+                              .replace('€', '')
+                              .replace(',', '.')
+                          ) || 0;
+                        const precioB =
+                          parseFloat(
+                            (modeloB.json?.precio || '0')
+                              .replace('€', '')
+                              .replace(',', '.')
+                          ) || 0;
+
+                        return precioA - precioB;
+                      }
+                    );
+
+                    return gruposOrdenados.map(([marca, modelos]) => {
                       if (!marcasFiltradas.includes(marca)) return null;
 
                       const seleccionadoIndex = modeloSeleccionado[marca] ?? 0;
